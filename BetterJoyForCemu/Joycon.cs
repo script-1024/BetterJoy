@@ -332,7 +332,7 @@ namespace BetterJoyForCemu {
         }
 
         public void ReceiveRumble(Xbox360FeedbackReceivedEventArgs e) {
-            DebugPrint("Rumble data Recived: XInput", DebugType.RUMBLE);
+            DebugPrint("收到震動數據：XInput", DebugType.RUMBLE);
             SetRumble(lowFreq, highFreq, (float)Math.Max(e.LargeMotor, e.SmallMotor) / (float)255);
 
             if (other != null && other != this)
@@ -340,7 +340,7 @@ namespace BetterJoyForCemu {
         }
 
         public void Ds4_FeedbackReceived(DualShock4FeedbackReceivedEventArgs e) {
-            DebugPrint("Rumble data Recived: DS4", DebugType.RUMBLE);
+            DebugPrint("收到震動數據：DS4", DebugType.RUMBLE);
             SetRumble(lowFreq, highFreq, (float)Math.Max(e.LargeMotor, e.SmallMotor) / (float)255);
 
             if (other != null && other != this)
@@ -385,7 +385,7 @@ namespace BetterJoyForCemu {
             // Connect
             if (isUSB) {
                 a = Enumerable.Repeat((byte)0, 64).ToArray();
-                form.AppendTextBox("Using USB.\r\n");
+                form.AppendTextBox("使用USB數據線連接。\r\n");
 
                 a[0] = 0x80;
                 a[1] = 0x1;
@@ -393,7 +393,7 @@ namespace BetterJoyForCemu {
                 HIDapi.hid_read_timeout(handle, a, new UIntPtr(64), 100);
 
                 if (a[0] != 0x81) { // can occur when USB connection isn't closed properly
-                    form.AppendTextBox("Resetting USB connection.\r\n");
+                    form.AppendTextBox("正在重設USB連接。\r\n");
                     Subcommand(0x06, new byte[] { 0x01 }, 1);
                     throw new Exception("reset_usb");
                 }
@@ -438,7 +438,7 @@ namespace BetterJoyForCemu {
             Subcommand(0x48, new byte[] { 0x01 }, 1);
 
             Subcommand(0x3, new byte[] { 0x30 }, 1);
-            DebugPrint("Done with init.", DebugType.COMMS);
+            DebugPrint("初始化完成。", DebugType.COMMS);
 
             HIDapi.hid_set_nonblocking(handle, 1);
 
@@ -510,7 +510,7 @@ namespace BetterJoyForCemu {
 
             if (battery <= 1) {
                 form.notifyIcon.Visible = true;
-                form.notifyIcon.BalloonTipText = String.Format("Controller {0} ({1}) - low battery notification!", PadId, isPro ? "Pro Controller" : (isSnes ? "SNES Controller" : (is64? "N64 Controller" : (isLeft ? "Joycon Left" : "Joycon Right"))));
+                form.notifyIcon.BalloonTipText = String.Format("控制器 {0} ({1}) - 低電量提醒！", PadId, isPro ? "Pro 控制器" : (isSnes ? "SNES 控制器" : (is64 ? "N64 控制器" : (isLeft ? "Joycon Left" : "Joycon Right"))));
                 form.notifyIcon.ShowBalloonTip(0);
             }
         }
@@ -600,11 +600,11 @@ namespace BetterJoyForCemu {
 
 
                 if (ts_en == raw_buf[1] && !(isSnes || is64)) {
-                    form.AppendTextBox("Duplicate timestamp enqueued.\r\n");
-                    DebugPrint(string.Format("Duplicate timestamp enqueued. TS: {0:X2}", ts_en), DebugType.THREADING);
+                    form.AppendTextBox("收到重複的時間戳。\r\n");
+                    DebugPrint(string.Format("重複時間戳：{0:X2}", ts_en), DebugType.THREADING);
                 }
                 ts_en = raw_buf[1];
-                DebugPrint(string.Format("Enqueue. Bytes read: {0:D}. Timestamp: {1:X2}", ret, raw_buf[1]), DebugType.THREADING);
+                DebugPrint(string.Format("消息排入隊列。讀取位元組：{0:D}，時間戳：{1:X2}", ret, raw_buf[1]), DebugType.THREADING);
             }
             return ret;
         }
@@ -880,13 +880,13 @@ namespace BetterJoyForCemu {
                     attempts = 0;
                 } else if (attempts > 240) {
                     state = state_.DROPPED;
-                    form.AppendTextBox("Dropped.\r\n");
+                    form.AppendTextBox("已斷開連接。\r\n");
 
-                    DebugPrint("Connection lost. Is the Joy-Con connected?", DebugType.ALL);
+                    DebugPrint("連線階段丟失，請確保 Joy-Con 是否已連接？", DebugType.ALL);
                     break;
                 } else if (a < 0) {
                     // An error on read.
-                    //form.AppendTextBox("Pause 5ms");
+                    //form.AppendTextBox("暫停 5ms");
                     Thread.Sleep((Int32)5);
                     ++attempts;
                 } else if (a == 0) {
@@ -1114,9 +1114,9 @@ namespace BetterJoyForCemu {
                 PollThreadObj.IsBackground = true;
                 PollThreadObj.Start();
 
-                form.AppendTextBox("Starting poll thread.\r\n");
+                form.AppendTextBox("正在啟動輪詢線程。\r\n");
             } else {
-                form.AppendTextBox("Poll cannot start.\r\n");
+                form.AppendTextBox("無法啟動輪詢線程。\r\n");
             }
         }
 
@@ -1163,7 +1163,7 @@ namespace BetterJoyForCemu {
             if (global_count == 0xf) global_count = 0;
             else ++global_count;
             Array.Copy(buf, 0, buf_, 2, 8);
-            PrintArray(buf_, DebugType.RUMBLE, format: "Rumble data sent: {0:S}");
+            PrintArray(buf_, DebugType.RUMBLE, format: "發送震動數據：{0:S}");
             HIDapi.hid_write(handle, buf_, new UIntPtr(report_len));
         }
 
@@ -1177,13 +1177,13 @@ namespace BetterJoyForCemu {
             buf_[0] = 0x1;
             if (global_count == 0xf) global_count = 0;
             else ++global_count;
-            if (print) { PrintArray(buf_, DebugType.COMMS, len, 11, "Subcommand 0x" + string.Format("{0:X2}", sc) + " sent. Data: 0x{0:S}"); };
+            if (print) { PrintArray(buf_, DebugType.COMMS, len, 11, "子命令 0x" + string.Format("{0:X2}", sc) + " 已發送，數據：0x{0:S}"); };
             HIDapi.hid_write(handle, buf_, new UIntPtr(len + 11));
             int tries = 0;
             do {
                 int res = HIDapi.hid_read_timeout(handle, response, new UIntPtr(report_len), 100);
-                if (res < 1) DebugPrint("No response.", DebugType.COMMS);
-                else if (print) { PrintArray(response, DebugType.COMMS, report_len - 1, 1, "Response ID 0x" + string.Format("{0:X2}", response[0]) + ". Data: 0x{0:S}"); }
+                if (res < 1) DebugPrint("沒有回應。", DebugType.COMMS);
+                else if (print) { PrintArray(response, DebugType.COMMS, report_len - 1, 1, "回應ID 0x" + string.Format("{0:X2}", response[0]) + "，數據：0x{0:S}"); }
                 tries++;
             } while (tries < 10 && response[0] != 0x21 && response[14] != sc);
 
@@ -1212,13 +1212,13 @@ namespace BetterJoyForCemu {
             bool found = false;
             for (int i = 0; i < 9; ++i) {
                 if (buf_[i] != 0xff) {
-                    form.AppendTextBox("Using user stick calibration data.\r\n");
+                    form.AppendTextBox("使用用戶搖桿校準數據。\r\n");
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                form.AppendTextBox("Using factory stick calibration data.\r\n");
+                form.AppendTextBox("使用原廠搖桿校準數據。\r\n");
                 buf_ = ReadSPI(0x60, (isLeft ? (byte)0x3d : (byte)0x46), 9); // get user calibration data if possible
             }
             stick_cal[isLeft ? 0 : 2] = (UInt16)((buf_[1] << 8) & 0xF00 | buf_[0]); // X Axis Max above center
@@ -1228,20 +1228,20 @@ namespace BetterJoyForCemu {
             stick_cal[isLeft ? 4 : 0] = (UInt16)((buf_[7] << 8) & 0xF00 | buf_[6]); // X Axis Min below center
             stick_cal[isLeft ? 5 : 1] = (UInt16)((buf_[8] << 4) | (buf_[7] >> 4));  // Y Axis Min below center
 
-            PrintArray(stick_cal, len: 6, start: 0, format: "Stick calibration data: {0:S}");
+            PrintArray(stick_cal, len: 6, start: 0, format: "搖桿校準數據：{0:S}");
 
             if (isPro) {
                 buf_ = ReadSPI(0x80, (!isLeft ? (byte)0x12 : (byte)0x1d), 9); // get user calibration data if possible
                 found = false;
                 for (int i = 0; i < 9; ++i) {
                     if (buf_[i] != 0xff) {
-                        form.AppendTextBox("Using user stick calibration data.\r\n");
+                        form.AppendTextBox("使用用戶搖桿校準數據。\r\n");
                         found = true;
                         break;
                     }
                 }
                 if (!found) {
-                    form.AppendTextBox("Using factory stick calibration data.\r\n");
+                    form.AppendTextBox("使用原廠搖桿校準數據。\r\n");
                     buf_ = ReadSPI(0x60, (!isLeft ? (byte)0x3d : (byte)0x46), 9); // get user calibration data if possible
                 }
                 stick2_cal[!isLeft ? 0 : 2] = (UInt16)((buf_[1] << 8) & 0xF00 | buf_[0]); // X Axis Max above center
@@ -1251,7 +1251,7 @@ namespace BetterJoyForCemu {
                 stick2_cal[!isLeft ? 4 : 0] = (UInt16)((buf_[7] << 8) & 0xF00 | buf_[6]); // X Axis Min below center
                 stick2_cal[!isLeft ? 5 : 1] = (UInt16)((buf_[8] << 4) | (buf_[7] >> 4));  // Y Axis Min below center
 
-                PrintArray(stick2_cal, len: 6, start: 0, format: "Stick calibration data: {0:S}");
+                PrintArray(stick2_cal, len: 6, start: 0, format: "搖桿校準數據：{0:S}");
 
                 buf_ = ReadSPI(0x60, (!isLeft ? (byte)0x86 : (byte)0x98), 16);
                 deadzone2 = (UInt16)((buf_[4] << 8) & 0xF00 | buf_[3]);
@@ -1280,7 +1280,7 @@ namespace BetterJoyForCemu {
             gyr_sensiti[1] = (Int16)(buf_[2] | ((buf_[3] << 8) & 0xff00));
             gyr_sensiti[2] = (Int16)(buf_[4] | ((buf_[5] << 8) & 0xff00));
 
-            PrintArray(gyr_neutral, len: 3, d: DebugType.IMU, format: "User gyro neutral position: {0:S}");
+            PrintArray(gyr_neutral, len: 3, d: DebugType.IMU, format: "用戶陀螺儀中心位置：{0:S}");
 
             // This is an extremely messy way of checking to see whether there is user stick calibration data present, but I've seen conflicting user calibration data on blank Joy-Cons. Worth another look eventually.
             if (gyr_neutral[0] + gyr_neutral[1] + gyr_neutral[2] == -3 || Math.Abs(gyr_neutral[0]) > 100 || Math.Abs(gyr_neutral[1]) > 100 || Math.Abs(gyr_neutral[2]) > 100) {
@@ -1304,7 +1304,7 @@ namespace BetterJoyForCemu {
                 gyr_sensiti[1] = (Int16)(buf_[2] | ((buf_[3] << 8) & 0xff00));
                 gyr_sensiti[2] = (Int16)(buf_[4] | ((buf_[5] << 8) & 0xff00));
 
-                PrintArray(gyr_neutral, len: 3, d: DebugType.IMU, format: "Factory gyro neutral position: {0:S}");
+                PrintArray(gyr_neutral, len: 3, d: DebugType.IMU, format: "原廠陀螺儀中心位置：{0:S}");
             }
             HIDapi.hid_set_nonblocking(handle, 1);
         }
@@ -1336,85 +1336,74 @@ namespace BetterJoyForCemu {
         }
 
 
-        private static float GetNormalizedValue(float value, float rawMin, float rawMax, float normalizedMin, float normalizedMax)
-        {
+        private static float GetNormalizedValue(float value, float rawMin, float rawMax, float normalizedMin, float normalizedMax) {
             return (value - rawMin) / (rawMax - rawMin) * (normalizedMax - normalizedMin) + normalizedMin;
         }
 
-        private static float[] Getn64StickValues(Joycon input)
-        {
+        private static float[] Getn64StickValues(Joycon input) {
             var isLeft = input.isLeft;
             var other = input.other;
             var stick = input.stick;
             var stick2 = input.stick2;
-            var stick_correction = new float[] { 0f, 0f};
+            var stick_correction = new float[] { 0f, 0f };
 
             var xAxis = (other == input && !isLeft) ? stick2[0] : stick[0];
             var yAxis = (other == input && !isLeft) ? stick2[1] : stick[1];
 
 
-            if (xAxis < input.minX)
-            {
+            if (xAxis < input.minX) {
                 input.minX = xAxis;
             }
 
-            if (xAxis > input.maxX)
-            {
+            if (xAxis > input.maxX) {
                 input.maxX = xAxis;
             }
 
-            if (yAxis < input.minY)
-            {
+            if (yAxis < input.minY) {
                 input.minY = yAxis;
             }
 
-            if (yAxis > input.maxY)
-            {
+            if (yAxis > input.maxY) {
                 input.maxY = yAxis;
             }
 
-            var middleX = (input.minX + (input.maxX - input.minX)/2);
-            var middleY = (input.minY + (input.maxY - input.minY)/2);
-            #if DEBUG
+            var middleX = (input.minX + (input.maxX - input.minX) / 2);
+            var middleY = (input.minY + (input.maxY - input.minY) / 2);
+#if DEBUG
             var desc = "";
             desc += "x: "+xAxis+"; y: "+yAxis;
             desc += "\n X: ["+input.minX+", "+input.maxX+"]; Y: ["+input.minY+", "+input.maxY+"] ";
             desc += "; middle ["+middleX+", "+middleY+"]";
                 
             Debug.WriteLine(desc);
-            #endif
+#endif
 
-            var negative_normalized = new float[] {-1, 0};
-            var positive_normalized = new float[] {0, 1};
+            var negative_normalized = new float[] { -1, 0 };
+            var positive_normalized = new float[] { 0, 1 };
 
-            var xRange = new float[] {-1f, 1f};
-            var yRange = new float[] {-1f, 1f};
+            var xRange = new float[] { -1f, 1f };
+            var yRange = new float[] { -1f, 1f };
 
-            if (input.realn64Range)
-            {
-                xRange = new float[] {-0.79f, 0.79f};
-                yRange = new float[] {-0.79f, 0.79f};
+            if (input.realn64Range) {
+                xRange = new float[] { -0.79f, 0.79f };
+                yRange = new float[] { -0.79f, 0.79f };
             }
-            
 
-            if (xAxis < (middleX - middleX))
-            {
+
+            if (xAxis < (middleX - middleX)) {
                 stick_correction[0] = GetNormalizedValue(xAxis, input.minX, (middleX - middleX), xRange[0], 0f);
             }
 
-            if (xAxis > (middleX+middleX))
-            {
-                stick_correction[0] = GetNormalizedValue(xAxis, (middleX+middleX), input.maxX, 0f, xRange[1]);
+            if (xAxis > (middleX + middleX)) {
+                stick_correction[0] = GetNormalizedValue(xAxis, (middleX + middleX), input.maxX, 0f, xRange[1]);
             }
 
-            if (yAxis < (middleY-middleY))
-            {
-                stick_correction[1] = GetNormalizedValue(yAxis, input.minY, (middleY-middleY), yRange[0], 0f);
+            if (yAxis < (middleY - middleY)) {
+                stick_correction[1] = GetNormalizedValue(yAxis, input.minY, (middleY - middleY), yRange[0], 0f);
             }
 
-            if (yAxis > (middleY+middleY))
-            {
-                stick_correction[1] = GetNormalizedValue(yAxis, (middleY+middleY), input.maxY, 0f, yRange[1]);
+            if (yAxis > (middleY + middleY)) {
+                stick_correction[1] = GetNormalizedValue(yAxis, (middleY + middleY), input.maxY, 0f, yRange[1]);
             }
 
 
@@ -1440,10 +1429,9 @@ namespace BetterJoyForCemu {
             var stick2 = input.stick2;
             var sliderVal = input.sliderVal;
 
-            if (is64)
-            {
-                output.axis_right_x = (short) ((buttons[(int)Button.X] ? Int16.MinValue : 0) + (buttons[(int)Button.MINUS] ? Int16.MaxValue : 0));
-                output.axis_right_y = (short) ((buttons[(int)Button.SHOULDER2_2] ? Int16.MinValue: 0) + (buttons[(int)Button.Y] ? Int16.MaxValue: 0));
+            if (is64) {
+                output.axis_right_x = (short)((buttons[(int)Button.X] ? Int16.MinValue : 0) + (buttons[(int)Button.MINUS] ? Int16.MaxValue : 0));
+                output.axis_right_y = (short)((buttons[(int)Button.SHOULDER2_2] ? Int16.MinValue : 0) + (buttons[(int)Button.Y] ? Int16.MaxValue : 0));
 
                 var n64Stick = Getn64StickValues(input);
 
@@ -1466,8 +1454,7 @@ namespace BetterJoyForCemu {
                 output.dpad_up = buttons[(int)Button.DPAD_UP];
                 output.guide = buttons[(int)Button.HOME];
 
-            }
-            else if (isPro) {
+            } else if (isPro) {
                 output.a = buttons[(int)(!swapAB ? Button.B : Button.A)];
                 output.b = buttons[(int)(!swapAB ? Button.A : Button.B)];
                 output.y = buttons[(int)(!swapXY ? Button.X : Button.Y)];
@@ -1541,8 +1528,7 @@ namespace BetterJoyForCemu {
                 }
             }
 
-            if (!is64)
-            {
+            if (!is64) {
                 if (other != null || isPro) {
                     byte lval = GyroAnalogSliders ? sliderVal[0] : Byte.MaxValue;
                     byte rval = GyroAnalogSliders ? sliderVal[1] : Byte.MaxValue;
@@ -1575,10 +1561,9 @@ namespace BetterJoyForCemu {
             var stick2 = input.stick2;
             var sliderVal = input.sliderVal;
 
-            if (is64)
-            {
-                output.thumb_right_x = (byte) ((buttons[(int)Button.X] ? Byte.MinValue : 0) + (buttons[(int)Button.MINUS] ? Byte.MaxValue : 0));
-                output.thumb_right_y = (byte) ((buttons[(int)Button.SHOULDER2_2] ? Byte.MinValue: 0) + (buttons[(int)Button.Y] ? Byte.MaxValue: 0));
+            if (is64) {
+                output.thumb_right_x = (byte)((buttons[(int)Button.X] ? Byte.MinValue : 0) + (buttons[(int)Button.MINUS] ? Byte.MaxValue : 0));
+                output.thumb_right_y = (byte)((buttons[(int)Button.SHOULDER2_2] ? Byte.MinValue : 0) + (buttons[(int)Button.Y] ? Byte.MaxValue : 0));
 
                 output.thumb_left_x = CastStickValueByte((other == input && !isLeft) ? -stick2[0] : -stick[0]);
                 output.thumb_left_y = CastStickValueByte((other == input && !isLeft) ? stick2[1] : stick[1]);
@@ -1613,7 +1598,7 @@ namespace BetterJoyForCemu {
                 } else if (buttons[(int)Button.DPAD_LEFT])
                     output.dPad = DpadDirection.West;
                 else if (buttons[(int)Button.DPAD_RIGHT])
-                    output.dPad = DpadDirection.East;                
+                    output.dPad = DpadDirection.East;
             }
 
             if (isPro) {
@@ -1642,10 +1627,10 @@ namespace BetterJoyForCemu {
                 else if (buttons[(int)Button.DPAD_RIGHT])
                     output.dPad = DpadDirection.East;
 
-                output.share = buttons[(int)Button.CAPTURE];
+                output.share = buttons[(int)Button.MINUS];
                 output.options = buttons[(int)Button.PLUS];
                 output.ps = buttons[(int)Button.HOME];
-                output.touchpad = buttons[(int)Button.MINUS];
+                output.touchpad = buttons[(int)Button.CAPTURE];
                 output.shoulder_left = buttons[(int)Button.SHOULDER_1];
                 output.shoulder_right = buttons[(int)Button.SHOULDER2_1];
                 output.thumb_left = buttons[(int)Button.STICK];
@@ -1716,8 +1701,7 @@ namespace BetterJoyForCemu {
                 }
             }
 
-            if (!is64)
-            {
+            if (!is64) {
                 if (other != null || isPro) {
                     byte lval = GyroAnalogSliders ? sliderVal[0] : Byte.MaxValue;
                     byte rval = GyroAnalogSliders ? sliderVal[1] : Byte.MaxValue;
@@ -1727,9 +1711,9 @@ namespace BetterJoyForCemu {
                     output.trigger_left_value = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER_1)] ? Byte.MaxValue : 0);
                     output.trigger_right_value = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_1 : Button.SHOULDER_2)] ? Byte.MaxValue : 0);
                 }
-            // Output digital L2 / R2 in addition to analog L2 / R2
-            output.trigger_left = output.trigger_left_value > 0 ? output.trigger_left = true : output.trigger_left = false;
-            output.trigger_right = output.trigger_right_value > 0 ? output.trigger_right = true : output.trigger_right = false;
+                // Output digital L2 / R2 in addition to analog L2 / R2
+                output.trigger_left = output.trigger_left_value > 0 ? output.trigger_left = true : output.trigger_left = false;
+                output.trigger_right = output.trigger_right_value > 0 ? output.trigger_right = true : output.trigger_right = false;
             }
 
             return output;

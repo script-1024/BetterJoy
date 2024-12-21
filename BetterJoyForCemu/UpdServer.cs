@@ -267,7 +267,7 @@ namespace BetterJoyForCemu {
                     EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
                     udpSock.BeginReceiveFrom(recvBuffer, 0, recvBuffer.Length, SocketFlags.None, ref newClientEP, ReceiveCallback, udpSock);
                 }
-            } catch (SocketException ex) {
+            } catch (SocketException) {
                 uint IOC_IN = 0x80000000;
                 uint IOC_VENDOR = 0x18000000;
                 uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
@@ -279,7 +279,7 @@ namespace BetterJoyForCemu {
 
         public void Start(IPAddress ip, int port = 26760) {
             if (!Boolean.Parse(ConfigurationManager.AppSettings["MotionServer"])) {
-                form.console.AppendText("Motion server is OFF.\r\n");
+                form.console.AppendText("MotionServer 未啟用。\r\n");
                 return;
             }
 
@@ -292,11 +292,11 @@ namespace BetterJoyForCemu {
             }
 
             udpSock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            try { udpSock.Bind(new IPEndPoint(ip, port)); } catch (SocketException ex) {
+            try { udpSock.Bind(new IPEndPoint(ip, port)); } catch (SocketException) {
                 udpSock.Close();
                 udpSock = null;
 
-                form.console.AppendText("Could not start server. Make sure that only one instance of the program is running at a time and no other CemuHook applications are running.\r\n");
+                form.console.AppendText("無法啟動伺服器，請確保同時間僅有單個實例在運行且沒有其他 CemuHook 應用程序在後台工作。\r\n");
                 return;
             }
 
@@ -305,7 +305,7 @@ namespace BetterJoyForCemu {
             serverId = BitConverter.ToUInt32(randomBuf, 0);
 
             running = true;
-            form.console.AppendText(String.Format("Starting server on {0}:{1}\r\n", ip.ToString(), port));
+            form.console.AppendText(String.Format("正在 {0}:{1} 上執行UDP伺服器。\r\n", ip.ToString(), port));
             StartReceive();
         }
 
@@ -501,7 +501,7 @@ namespace BetterJoyForCemu {
                 FinishPacket(outputData);
 
             foreach (var cl in clientsList) {
-                try { udpSock.SendTo(outputData, cl); } catch (SocketException ex) { }
+                try { udpSock.SendTo(outputData, cl); } catch (SocketException) { }
             }
             clientsList.Clear();
             clientsList = null;

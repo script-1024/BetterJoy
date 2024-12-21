@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -7,7 +6,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
@@ -83,7 +81,7 @@ namespace BetterJoyForCemu {
                         }
                     }
 
-                    form.AppendTextBox("Removed dropped controller. Can be reconnected.\r\n");
+                    form.AppendTextBox("已移除斷開連接的控制器，可重新連接。\r\n");
                 }
             }
 
@@ -149,21 +147,21 @@ namespace BetterJoyForCemu {
                     switch (prod_id) {
                         case product_l:
                             isLeft = true;
-                            form.AppendTextBox("Left Joy-Con connected.\r\n"); break;
+                            form.AppendTextBox("左側 Joy-Con 已連接。\r\n"); break;
                         case product_r:
                             isLeft = false;
-                            form.AppendTextBox("Right Joy-Con connected.\r\n"); break;
+                            form.AppendTextBox("右側 Joy-Con 已連接。\r\n"); break;
                         case product_pro:
                             isLeft = true;
-                            form.AppendTextBox("Pro controller connected.\r\n"); break;
+                            form.AppendTextBox("Pro 控制器已連接。\r\n"); break;
                         case product_snes:
                             isLeft = true;
-                            form.AppendTextBox("SNES controller connected.\r\n"); break;
+                            form.AppendTextBox("SNES 控制器已連接。\r\n"); break;
                         case product_n64:
                             isLeft = true;
-                            form.AppendTextBox("N64 controller connected.\r\n"); break;
+                            form.AppendTextBox("N64 控制器已連接。\r\n"); break;
                         default:
-                            form.AppendTextBox("Non Joy-Con Nintendo input device skipped.\r\n"); break;
+                            form.AppendTextBox("已忽略非任天堂 Joy-Con 輸入設備。\r\n"); break;
                     }
 
                     // Add controller to block-list for HidGuardian
@@ -183,7 +181,7 @@ namespace BetterJoyForCemu {
                             var response = (HttpWebResponse)request.GetResponse();
                             var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
                         } catch {
-                            form.AppendTextBox("Unable to add controller to block-list.\r\n");
+                            form.AppendTextBox("無法將控制器添加至封鎖列表。\r\n");
                         }
                     }
                     // -------------------- //
@@ -192,14 +190,14 @@ namespace BetterJoyForCemu {
                     try {
                         HIDapi.hid_set_nonblocking(handle, 1);
                     } catch {
-                        form.AppendTextBox("Unable to open path to device - are you using the correct (64 vs 32-bit) version for your PC?\r\n");
+                        form.AppendTextBox("無法開啟裝置路徑，您的電腦是否使用正確的（32或64位）版本？\r\n");
                         break;
                     }
 
                     bool isPro = prod_id == product_pro;
                     bool isSnes = prod_id == product_snes;
                     bool is64 = prod_id == product_n64;
-                    j.Add(new Joycon(handle, EnableIMU, EnableLocalize & EnableIMU, 0.05f, isLeft, enumerate.path, enumerate.serial_number, j.Count, isPro, isSnes, is64,thirdParty != null));
+                    j.Add(new Joycon(handle, EnableIMU, EnableLocalize & EnableIMU, 0.05f, isLeft, enumerate.path, enumerate.serial_number, j.Count, isPro, isSnes, is64, thirdParty != null));
 
                     foundNew = true;
                     j.Last().form = form;
@@ -355,8 +353,6 @@ namespace BetterJoyForCemu {
 
         public static ViGEmClient emClient;
 
-        private static readonly HttpClient client = new HttpClient();
-
         public static JoyconManager mgr;
         static string pid;
 
@@ -373,21 +369,21 @@ namespace BetterJoyForCemu {
             pid = Process.GetCurrentProcess().Id.ToString(); // get current process id for HidCerberus.Srv
 
             if (useHIDG) {
-                form.console.AppendText("HidGuardian is enabled.\r\n");
+                form.console.AppendText("HidGuardian 已啟用。\r\n");
                 try {
                     var HidCerberusService = new ServiceController("HidCerberus Service");
                     if (HidCerberusService.Status == ServiceControllerStatus.Stopped) {
-                        form.console.AppendText("HidGuardian was stopped. Starting...\r\n");
+                        form.console.AppendText("HidGuardian 已停止運行，正在重啟......\r\n");
 
                         try {
                             HidCerberusService.Start();
                         } catch (Exception e) {
-                            form.console.AppendText("Unable to start HidGuardian - everything should work fine without it, but if you need it, run the app again as an admin.\r\n");
+                            form.console.AppendText("無法啟動 HidGuardian，即使沒有它也應該能正常運行，但倘若您有需求，請嘗試以管理員身份重啟程序。\r\n");
                             useHIDG = false;
                         }
                     }
                 } catch (Exception e) {
-                    form.console.AppendText("Unable to start HidGuardian - everything should work fine without it, but if you need it, install it properly as admin.\r\n");
+                    form.console.AppendText("無法啟動 HidGuardian，即使沒有它也應該能正常運行，但倘若您有需求，請以管理員身份正確安裝它。\r\n");
                     useHIDG = false;
                 }
 
@@ -396,7 +392,7 @@ namespace BetterJoyForCemu {
                     try {
                         response = (HttpWebResponse)WebRequest.Create(@"http://localhost:26762/api/v1/hidguardian/whitelist/purge/").GetResponse(); // remove all programs allowed to see controller
                     } catch (Exception e) {
-                        form.console.AppendText("Unable to purge whitelist.\r\n");
+                        form.console.AppendText("無法清除白名單。\r\n");
                         useHIDG = false;
                     }
                 }
@@ -404,7 +400,7 @@ namespace BetterJoyForCemu {
                 try {
                     response = (HttpWebResponse)WebRequest.Create(@"http://localhost:26762/api/v1/hidguardian/whitelist/add/" + pid).GetResponse(); // add BetterJoyForCemu to allowed processes 
                 } catch (Exception e) {
-                    form.console.AppendText("Unable to add program to whitelist.\r\n");
+                    form.console.AppendText("無法將程序添加至白名單。\r\n");
                     useHIDG = false;
                 }
             }
@@ -413,7 +409,7 @@ namespace BetterJoyForCemu {
                 try {
                     emClient = new ViGEmClient(); // Manages emulated XInput
                 } catch (Nefarius.ViGEm.Client.Exceptions.VigemBusNotFoundException) {
-                    form.console.AppendText("Could not start VigemBus. Make sure drivers are installed correctly.\r\n");
+                    form.console.AppendText("無法啟動 VigemBus，請確保驅動已正確安裝。\r\n");
                 }
             }
 
@@ -447,7 +443,7 @@ namespace BetterJoyForCemu {
             mouse = WindowsInput.Capture.Global.MouseAsync();
             mouse.MouseEvent += Mouse_MouseEvent;
 
-            form.console.AppendText("All systems go\r\n");
+            form.console.AppendText("一切就緒。\r\n");
         }
 
         private static void Mouse_MouseEvent(object sender, WindowsInput.Events.Sources.EventSourceEventArgs<WindowsInput.Events.Sources.MouseEvent> e) {
@@ -501,7 +497,7 @@ namespace BetterJoyForCemu {
                 try {
                     HttpWebResponse response = (HttpWebResponse)WebRequest.Create(@"http://localhost:26762/api/v1/hidguardian/whitelist/remove/" + pid).GetResponse();
                 } catch (Exception e) {
-                    form.console.AppendText("Unable to remove program from whitelist.\r\n");
+                    form.console.AppendText("無法從白名單中移除程序。\r\n");
                 }
             }
 

@@ -1,17 +1,13 @@
-﻿using Nefarius.ViGEm.Client.Targets;
-using Nefarius.ViGEm.Client.Targets.Xbox360;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace BetterJoyForCemu {
     public partial class MainForm : Form {
@@ -49,17 +45,20 @@ namespace BetterJoyForCemu {
 
             //list all options
             string[] myConfigs = ConfigurationManager.AppSettings.AllKeys;
-            Size childSize = new Size(150, 20);
+            settingsTable.RowCount = myConfigs.Length;
             for (int i = 0; i != myConfigs.Length; i++) {
-                settingsTable.RowCount++;
-                settingsTable.Controls.Add(new Label() { Text = myConfigs[i], TextAlign = ContentAlignment.BottomLeft, AutoEllipsis = true, Size = childSize }, 0, i);
+                settingsTable.Controls.Add(new Label() { Text = myConfigs[i], Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft, AutoEllipsis = true }, 0, i);
+                
+                // 固定行高
+                var style = new RowStyle { SizeType = SizeType.Absolute, Height = 40 };
+                settingsTable.RowStyles.Add(style);
 
                 var value = ConfigurationManager.AppSettings[myConfigs[i]];
                 Control childControl;
                 if (value == "true" || value == "false") {
-                    childControl = new CheckBox() { Checked = Boolean.Parse(value), Size = childSize };
+                    childControl = new CheckBox() { Checked = Boolean.Parse(value), Dock = DockStyle.Fill };
                 } else {
-                    childControl = new TextBox() { Text = value, Size = childSize };
+                    childControl = new TextBox() { Text = value, Margin = new Padding(4, 6, 4, 6) };
                 }
 
                 childControl.MouseClick += cbBox_Changed;
@@ -123,11 +122,6 @@ namespace BetterJoyForCemu {
                 Close();
                 Environment.Exit(0);
             } catch { }
-        }
-
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            donationLink.LinkVisited = true;
-            System.Diagnostics.Process.Start("http://paypal.me/DavidKhachaturov/5");
         }
 
         private void passiveScanBox_CheckedChanged(object sender, EventArgs e) {
@@ -251,12 +245,11 @@ namespace BetterJoyForCemu {
             try {
                 configFile.Save(ConfigurationSaveMode.Modified);
             } catch (ConfigurationErrorsException) {
-                AppendTextBox("Error writing app settings.\r\n");
+                AppendTextBox("寫入應用程序設置時出錯。\r\n");
             }
 
             ConfigurationManager.AppSettings["AutoPowerOff"] = "false";  // Prevent joycons poweroff when applying settings
-            Application.Restart();
-            Environment.Exit(0);
+            Application.Exit();
         }
 
         void ReenableViGEm(Joycon v) {
@@ -307,17 +300,20 @@ namespace BetterJoyForCemu {
                 configFile.Save(ConfigurationSaveMode.Modified);
                 ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Name);
             } catch (ConfigurationErrorsException) {
-                AppendTextBox("Error writing app settings\r\n");
+                AppendTextBox("寫入應用程序設置時出錯。\r\n");
                 Trace.WriteLine(String.Format("rw {0}, column {1}, {2}, {3}", coord.Row, coord.Column, sender.GetType(), KeyCtl));
             }
         }
+
+        private string lastLog = string.Empty;
         private void StartCalibrate(object sender, EventArgs e) {
+            lastLog = console.Text;
             if (Program.mgr.j.Count == 0) {
-                this.console.Text = "Please connect a single pro controller.";
+                AppendTextBox("請先連接控制器後再試一次。\r\n");
                 return;
             }
             if (Program.mgr.j.Count > 1) {
-                this.console.Text = "Please calibrate one controller at a time (disconnect others).";
+                AppendTextBox("請先斷開連接其餘設備，同時間僅能校準單只控制器。\r\n");
                 return;
             }
             this.AutoCalibrate.Enabled = false;
@@ -345,29 +341,35 @@ namespace BetterJoyForCemu {
             mapForm.ShowDialog();
         }
 
+        private void link_gamepad_test_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            string path = Environment.CurrentDirectory + "\\GamepadTest.html";
+            if (!File.Exists(path)) return;
+            Process.Start(path);
+        }
+
         private void CountDown(object sender, EventArgs e) {
-            if (this.count == 0) {
-                this.console.Text = "Calibrating...";
+            if (this.count > 0) {
+                this.console.Text = "請將控制器放置於平坦桌面。" + "\r\n";
+                this.console.Text += "即將於 " + this.count + " 秒後開始校準。" + "\r\n";
+                this.count--;
+            }
+            else {
+                AppendTextBox("校準中...\r\n");
                 countDown.Stop();
                 this.StartGetData();
-            } else {
-                this.console.Text = "Plese keep the controller flat." + "\r\n";
-                this.console.Text += "Calibration will start in " + this.count + " seconds.";
-                this.count--;
             }
         }
         private void CalcData(object sender, EventArgs e) {
+            if (this.count >= 0) {
+                if (--this.count > 0) return;
+            }
             if (this.count == 0) {
-                countDown.Stop();
                 this.calibrate = false;
                 string serNum = Program.mgr.j.First().serial_number;
                 int serIndex = this.findSer(serNum);
                 float[] Arr = new float[6] { 0, 0, 0, 0, 0, 0 };
                 if (serIndex == -1) {
-                    this.caliData.Add(new KeyValuePair<string, float[]>(
-                         serNum,
-                         Arr
-                    ));
+                    this.caliData.Add(new KeyValuePair<string, float[]>(serNum, Arr));
                 } else {
                     Arr = this.caliData[serIndex].Value;
                 }
@@ -378,14 +380,15 @@ namespace BetterJoyForCemu {
                 Arr[3] = (float)quickselect_median(this.xA, rnd.Next);
                 Arr[4] = (float)quickselect_median(this.yA, rnd.Next);
                 Arr[5] = (float)quickselect_median(this.zA, rnd.Next) - 4010; //Joycon.cs acc_sen 16384
-                this.console.Text += "Calibration completed!!!" + "\r\n";
+                AppendTextBox("校準完成！\r\n");
                 Config.SaveCaliData(this.caliData);
                 Program.mgr.j.First().getActiveData();
                 this.AutoCalibrate.Enabled = true;
+                return;
             } else {
-                this.count--;
+                countDown.Stop();
+                console.Text = lastLog;
             }
-
         }
         private double quickselect_median(List<int> l, Func<int, int> pivot_fn) {
             int ll = l.Count;
