@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using static BetterJoyForCemu.HIDapi;
@@ -120,11 +113,11 @@ namespace BetterJoyForCemu {
                 }
 
                 // TODO: try checking against interface number instead
-                String name = enumerate.product_string + '(' + enumerate.vendor_id + '-' + enumerate.product_id + '-'+enumerate.serial_number+')';
+                String name = enumerate.product_string + '(' + enumerate.vendor_id + '-' + enumerate.product_id + '-' + enumerate.serial_number + ')';
                 if (!ContainsText(list_customControllers, name) && !ContainsText(list_allControllers, name)) {
                     list_allControllers.Items.Add(new SController(name, enumerate.vendor_id, enumerate.product_id, 0, enumerate.serial_number));
                     // 0 type is undefined
-                    Console.WriteLine("Found controller "+ name);
+                    Console.WriteLine("Found controller " + name);
                 }
 
                 ptr = enumerate.next;

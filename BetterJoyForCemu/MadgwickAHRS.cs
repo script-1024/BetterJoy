@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 // source: https://github.com/xioTechnologies/Open-Source-AHRS-With-x-IMU/blob/master/x-IMU%20IMU%20and%20AHRS%20Algorithms/x-IMU%20IMU%20and%20AHRS%20Algorithms/AHRS/MadgwickAHRS.cs
 
@@ -146,7 +142,7 @@ namespace BetterJoyForCemu {
         public float[] GetEulerAngles() {
             float[] pitchYawRoll = new float[3];
             float q0 = Quaternion[0], q1 = Quaternion[1], q2 = Quaternion[2], q3 = Quaternion[3];
-            float sq1 = q1 * q1, sq2 = q2 * q2, sq3 = q3 * q3;          
+            float sq1 = q1 * q1, sq2 = q2 * q2, sq3 = q3 * q3;
             pitchYawRoll[0] = (float)Math.Asin(2f * (q0 * q2 - q3 * q1));                            // Pitch 
             pitchYawRoll[1] = (float)Math.Atan2(2f * (q0 * q3 + q1 * q2), 1 - 2f * (sq2 + sq3));     // Yaw
             pitchYawRoll[2] = (float)Math.Atan2(2f * (q0 * q1 + q2 * q3), 1 - 2f * (sq1 + sq2));     // Roll 
