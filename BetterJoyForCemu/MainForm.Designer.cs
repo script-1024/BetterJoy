@@ -50,6 +50,7 @@
             this.AutoCalibrate = new System.Windows.Forms.Button();
             this.btn_reassign_open = new System.Windows.Forms.Button();
             this.link_gamepad_test = new System.Windows.Forms.LinkLabel();
+            this.btn_auto_pair = new System.Windows.Forms.Button();
             this.contextMenu.SuspendLayout();
             this.conCntrls.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -60,13 +61,13 @@
             // 
             this.console.BackColor = System.Drawing.Color.White;
             this.console.Font = new System.Drawing.Font("微軟正黑體", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.console.Location = new System.Drawing.Point(16, 197);
+            this.console.Location = new System.Drawing.Point(16, 158);
             this.console.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.console.Multiline = true;
             this.console.Name = "console";
             this.console.ReadOnly = true;
             this.console.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.console.Size = new System.Drawing.Size(348, 216);
+            this.console.Size = new System.Drawing.Size(241, 255);
             this.console.TabIndex = 2;
             // 
             // notifyIcon
@@ -259,10 +260,10 @@
             // btn_open3rdP
             // 
             this.btn_open3rdP.Font = new System.Drawing.Font("微軟正黑體", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_open3rdP.Location = new System.Drawing.Point(137, 159);
+            this.btn_open3rdP.Location = new System.Drawing.Point(265, 212);
             this.btn_open3rdP.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.btn_open3rdP.Name = "btn_open3rdP";
-            this.btn_open3rdP.Size = new System.Drawing.Size(107, 34);
+            this.btn_open3rdP.Size = new System.Drawing.Size(100, 50);
             this.btn_open3rdP.TabIndex = 7;
             this.btn_open3rdP.Text = "添加設備";
             this.btn_open3rdP.UseVisualStyleBackColor = true;
@@ -326,10 +327,10 @@
             // AutoCalibrate
             // 
             this.AutoCalibrate.Font = new System.Drawing.Font("微軟正黑體", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.AutoCalibrate.Location = new System.Drawing.Point(259, 159);
+            this.AutoCalibrate.Location = new System.Drawing.Point(265, 320);
             this.AutoCalibrate.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.AutoCalibrate.Name = "AutoCalibrate";
-            this.AutoCalibrate.Size = new System.Drawing.Size(107, 34);
+            this.AutoCalibrate.Size = new System.Drawing.Size(100, 50);
             this.AutoCalibrate.TabIndex = 8;
             this.AutoCalibrate.Text = "校準搖桿";
             this.AutoCalibrate.UseVisualStyleBackColor = true;
@@ -338,10 +339,10 @@
             // btn_reassign_open
             // 
             this.btn_reassign_open.Font = new System.Drawing.Font("微軟正黑體", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_reassign_open.Location = new System.Drawing.Point(16, 159);
+            this.btn_reassign_open.Location = new System.Drawing.Point(265, 158);
             this.btn_reassign_open.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.btn_reassign_open.Name = "btn_reassign_open";
-            this.btn_reassign_open.Size = new System.Drawing.Size(107, 34);
+            this.btn_reassign_open.Size = new System.Drawing.Size(100, 50);
             this.btn_reassign_open.TabIndex = 13;
             this.btn_reassign_open.Text = "映射按鍵";
             this.btn_reassign_open.UseVisualStyleBackColor = true;
@@ -360,6 +361,18 @@
             this.link_gamepad_test.Text = "測試控制器";
             this.link_gamepad_test.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.link_gamepad_test_LinkClicked);
             // 
+            // btn_auto_pair
+            // 
+            this.btn_auto_pair.Font = new System.Drawing.Font("微軟正黑體", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_auto_pair.Location = new System.Drawing.Point(265, 266);
+            this.btn_auto_pair.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.btn_auto_pair.Name = "btn_auto_pair";
+            this.btn_auto_pair.Size = new System.Drawing.Size(100, 50);
+            this.btn_auto_pair.TabIndex = 15;
+            this.btn_auto_pair.Text = "重新配對";
+            this.btn_auto_pair.UseVisualStyleBackColor = true;
+            this.btn_auto_pair.Click += new System.EventHandler(this.btn_auto_pair_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -368,6 +381,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.GhostWhite;
             this.ClientSize = new System.Drawing.Size(845, 453);
+            this.Controls.Add(this.btn_auto_pair);
             this.Controls.Add(this.link_gamepad_test);
             this.Controls.Add(this.btn_reassign_open);
             this.Controls.Add(this.foldLbl);
@@ -423,5 +437,6 @@
         private System.Windows.Forms.Button AutoCalibrate;
         private System.Windows.Forms.Button btn_reassign_open;
         private System.Windows.Forms.LinkLabel link_gamepad_test;
+        private System.Windows.Forms.Button btn_auto_pair;
     }
 }

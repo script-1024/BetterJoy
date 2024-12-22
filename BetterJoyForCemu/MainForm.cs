@@ -347,6 +347,24 @@ namespace BetterJoyForCemu {
             Process.Start(path);
         }
 
+        private async void btn_auto_pair_Click(object sender, EventArgs e) {
+            var path = Environment.CurrentDirectory + "\\btpair.exe";
+            var unpair = new ProcessStartInfo() { FileName = path, Arguments = "-u -n\"Pro Controller\"", WindowStyle = ProcessWindowStyle.Hidden };
+            var repair = new ProcessStartInfo() { FileName = path, Arguments = "-p -n\"Pro Controller\"", WindowStyle = ProcessWindowStyle.Hidden };
+            if (File.Exists(path)) {
+                string lastLog = console.Text;
+                console.Text = "正在嘗試斷開連接...\r\n";
+                await Task.Run(Process.Start(unpair).WaitForExit);
+                AppendTextBox("即將開始配對手柄，請確保設備處於配對模式...\r\n");
+                await Task.Run(Process.Start(repair).WaitForExit);
+                AppendTextBox("命令執行完畢，請在彈出窗口確認操作。\r\n");
+                await Task.Delay(3000);
+                console.Text = lastLog;
+            } else {
+                AppendTextBox("無法找到 \"btpair.exe\"，請嘗試重新下載軟件或自行替換！\r\n");
+            }
+        }
+
         private void CountDown(object sender, EventArgs e) {
             if (this.count > 0) {
                 this.console.Text = "請將控制器放置於平坦桌面。" + "\r\n";
