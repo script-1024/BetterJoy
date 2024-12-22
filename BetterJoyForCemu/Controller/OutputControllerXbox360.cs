@@ -68,7 +68,7 @@ namespace BetterJoyForCemu.Controller {
     }
 
     public class OutputControllerXbox360 {
-        private IXbox360Controller xbox_controller;
+        private readonly IXbox360Controller xbox_controller;
         private OutputControllerXbox360InputState current_state;
 
         public delegate void Xbox360FeedbackReceivedEventHandler(Xbox360FeedbackReceivedEventArgs e);

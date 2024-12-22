@@ -11,9 +11,9 @@ namespace BetterJoyForCemu {
         private Socket udpSock;
         private uint serverId;
         private bool running;
-        private byte[] recvBuffer = new byte[1024];
+        private readonly byte[] recvBuffer = new byte[1024];
 
-        IList<Joycon> controllers;
+        readonly IList<Joycon> controllers;
 
         public MainForm form;
 
@@ -34,8 +34,8 @@ namespace BetterJoyForCemu {
 
         class ClientRequestTimes {
             DateTime allPads;
-            DateTime[] padIds;
-            Dictionary<PhysicalAddress, DateTime> padMacs;
+            readonly DateTime[] padIds;
+            readonly Dictionary<PhysicalAddress, DateTime> padMacs;
 
             public DateTime AllPadsTime { get { return allPads; } }
             public DateTime[] PadIdsTime { get { return padIds; } }
@@ -68,7 +68,7 @@ namespace BetterJoyForCemu {
             }
         }
 
-        private Dictionary<IPEndPoint, ClientRequestTimes> clients = new Dictionary<IPEndPoint, ClientRequestTimes>();
+        private readonly Dictionary<IPEndPoint, ClientRequestTimes> clients = new Dictionary<IPEndPoint, ClientRequestTimes>();
 
         private int BeginPacket(byte[] packetBuf, ushort reqProtocolVersion = MaxProtocolVersion) {
             int currIdx = 0;
@@ -77,7 +77,7 @@ namespace BetterJoyForCemu {
             packetBuf[currIdx++] = (byte)'U';
             packetBuf[currIdx++] = (byte)'S';
 
-            Array.Copy(BitConverter.GetBytes((ushort)reqProtocolVersion), 0, packetBuf, currIdx, 2);
+            Array.Copy(BitConverter.GetBytes(reqProtocolVersion), 0, packetBuf, currIdx, 2);
             currIdx += 2;
 
             Array.Copy(BitConverter.GetBytes((ushort)packetBuf.Length - 16), 0, packetBuf, currIdx, 2);
@@ -86,7 +86,7 @@ namespace BetterJoyForCemu {
             Array.Clear(packetBuf, currIdx, 4); //place for crc
             currIdx += 4;
 
-            Array.Copy(BitConverter.GetBytes((uint)serverId), 0, packetBuf, currIdx, 4);
+            Array.Copy(BitConverter.GetBytes(serverId), 0, packetBuf, currIdx, 4);
             currIdx += 4;
 
             return currIdx;
@@ -96,7 +96,7 @@ namespace BetterJoyForCemu {
             Array.Clear(packetBuf, 8, 4);
 
             uint crcCalc = Crc32Algorithm.Compute(packetBuf);
-            Array.Copy(BitConverter.GetBytes((uint)crcCalc), 0, packetBuf, 8, 4);
+            Array.Copy(BitConverter.GetBytes(crcCalc), 0, packetBuf, 8, 4);
         }
 
         private void SendPacket(IPEndPoint clientEP, byte[] usefulData, ushort reqProtocolVersion = MaxProtocolVersion) {
@@ -105,7 +105,7 @@ namespace BetterJoyForCemu {
             Array.Copy(usefulData, 0, packetData, currIdx, usefulData.Length);
             FinishPacket(packetData);
 
-            try { udpSock.SendTo(packetData, clientEP); } catch (Exception e) { }
+            try { udpSock.SendTo(packetData, clientEP); } catch (Exception) { }
         }
 
         private void ProcessIncoming(byte[] localMsg, IPEndPoint clientEP) {
@@ -159,7 +159,7 @@ namespace BetterJoyForCemu {
                     int outIdx = 0;
                     Array.Copy(BitConverter.GetBytes((uint)MessageType.DSUS_VersionRsp), 0, outputData, outIdx, 4);
                     outIdx += 4;
-                    Array.Copy(BitConverter.GetBytes((ushort)MaxProtocolVersion), 0, outputData, outIdx, 2);
+                    Array.Copy(BitConverter.GetBytes(MaxProtocolVersion), 0, outputData, outIdx, 2);
                     outIdx += 2;
                     outputData[outIdx++] = 0;
                     outputData[outIdx++] = 0;
@@ -236,7 +236,7 @@ namespace BetterJoyForCemu {
                         }
                     }
                 }
-            } catch (Exception e) { }
+            } catch (Exception) { }
         }
 
         private void ReceiveCallback(IAsyncResult iar) {
@@ -250,7 +250,7 @@ namespace BetterJoyForCemu {
 
                 localMsg = new byte[msgLen];
                 Array.Copy(recvBuffer, localMsg, msgLen);
-            } catch (Exception e) { }
+            } catch (Exception) { }
 
             //Start another receive as soon as we copied the data
             StartReceive();
@@ -429,7 +429,7 @@ namespace BetterJoyForCemu {
 
                     if ((now - cl.Value.AllPadsTime).TotalSeconds < TimeoutLimit)
                         clientsList.Add(cl.Key);
-                    else if ((hidReport.PadId >= 0 && hidReport.PadId <= 3) &&
+                    else if (hidReport.PadId >= 0 && hidReport.PadId <= 3 &&
                              (now - cl.Value.PadIdsTime[(byte)hidReport.PadId]).TotalSeconds < TimeoutLimit)
                         clientsList.Add(cl.Key);
                     else if (cl.Value.PadMacsTime.ContainsKey(hidReport.PadMacAddress) &&

@@ -209,15 +209,15 @@ namespace BetterJoyForCemu {
                             if (!v.Enabled) {
                                 System.Drawing.Bitmap temp;
                                 switch (prod_id) {
-                                    case (product_l):
+                                    case product_l:
                                         temp = Properties.Resources.jc_left_s; break;
-                                    case (product_r):
+                                    case product_r:
                                         temp = Properties.Resources.jc_right_s; break;
-                                    case (product_pro):
+                                    case product_pro:
                                         temp = Properties.Resources.pro; break;
-                                    case (product_snes):
+                                    case product_snes:
                                         temp = Properties.Resources.snes; break;
-                                    case (product_n64):
+                                    case product_n64:
                                         temp = Properties.Resources.ultra; break;
                                     default:
                                         temp = Properties.Resources.cross; break;
@@ -244,7 +244,7 @@ namespace BetterJoyForCemu {
                     try {
                         for (int n = 0; n < 6; n++)
                             mac[n] = byte.Parse(enumerate.serial_number.Substring(n * 2, 2), System.Globalization.NumberStyles.HexNumber);
-                    } catch (Exception e) {
+                    } catch (Exception) {
                         // could not parse mac address
                     }
                     j[j.Count - 1].PadMacAddress = new PhysicalAddress(mac);
@@ -274,14 +274,14 @@ namespace BetterJoyForCemu {
                         if (temp.out_xbox != null) {
                             try {
                                 temp.out_xbox.Disconnect();
-                            } catch (Exception e) {
+                            } catch (Exception) {
                                 // it wasn't connected in the first place, go figure
                             }
                         }
                         if (temp.out_ds4 != null) {
                             try {
                                 temp.out_ds4.Disconnect();
-                            } catch (Exception e) {
+                            } catch (Exception) {
                                 // it wasn't connected in the first place, go figure
                             }
                         }
@@ -311,7 +311,7 @@ namespace BetterJoyForCemu {
 
                     try {
                         jc.Attach();
-                    } catch (Exception e) {
+                    } catch (Exception) {
                         jc.state = Joycon.state_.DROPPED;
                         continue;
                     }
@@ -333,13 +333,8 @@ namespace BetterJoyForCemu {
 
                 v.Detach();
 
-                if (v.out_xbox != null) {
-                    v.out_xbox.Disconnect();
-                }
-
-                if (v.out_ds4 != null) {
-                    v.out_ds4.Disconnect();
-                }
+                v.out_xbox?.Disconnect();
+                v.out_ds4?.Disconnect();
             }
 
             controllerCheck.Stop();
@@ -349,21 +344,17 @@ namespace BetterJoyForCemu {
 
     class Program {
         public static PhysicalAddress btMAC = new PhysicalAddress(new byte[] { 0, 0, 0, 0, 0, 0 });
+        public static List<SController> thirdPartyCons = new List<SController>();
+        public static ViGEmClient emClient;
+        public static JoyconManager mgr;
         public static UdpServer server;
 
-        public static ViGEmClient emClient;
-
-        public static JoyconManager mgr;
-        static string pid;
-
-        static MainForm form;
-
-        static public bool useHIDG = Boolean.Parse(ConfigurationManager.AppSettings["UseHIDG"]);
-
-        public static List<SController> thirdPartyCons = new List<SController>();
+        public static bool useHIDG = Boolean.Parse(ConfigurationManager.AppSettings["UseHIDG"]);
 
         private static WindowsInput.Events.Sources.IKeyboardEventSource keyboard;
         private static WindowsInput.Events.Sources.IMouseEventSource mouse;
+        private static MainForm form;
+        private static string pid;
 
         public static void Start() {
             pid = Process.GetCurrentProcess().Id.ToString(); // get current process id for HidCerberus.Srv
@@ -377,12 +368,12 @@ namespace BetterJoyForCemu {
 
                         try {
                             HidCerberusService.Start();
-                        } catch (Exception e) {
+                        } catch (Exception) {
                             form.console.AppendText("無法啟動 HidGuardian，即使沒有它也應該能正常運行，但倘若您有需求，請嘗試以管理員身份重啟程序。\r\n");
                             useHIDG = false;
                         }
                     }
-                } catch (Exception e) {
+                } catch (Exception) {
                     form.console.AppendText("無法啟動 HidGuardian，即使沒有它也應該能正常運行，但倘若您有需求，請以管理員身份正確安裝它。\r\n");
                     useHIDG = false;
                 }
@@ -391,7 +382,7 @@ namespace BetterJoyForCemu {
                 if (Boolean.Parse(ConfigurationManager.AppSettings["PurgeWhitelist"])) {
                     try {
                         response = (HttpWebResponse)WebRequest.Create(@"http://localhost:26762/api/v1/hidguardian/whitelist/purge/").GetResponse(); // remove all programs allowed to see controller
-                    } catch (Exception e) {
+                    } catch (Exception) {
                         form.console.AppendText("無法清除白名單。\r\n");
                         useHIDG = false;
                     }
@@ -399,7 +390,7 @@ namespace BetterJoyForCemu {
 
                 try {
                     response = (HttpWebResponse)WebRequest.Create(@"http://localhost:26762/api/v1/hidguardian/whitelist/add/" + pid).GetResponse(); // add BetterJoyForCemu to allowed processes 
-                } catch (Exception e) {
+                } catch (Exception) {
                     form.console.AppendText("無法將程序添加至白名單。\r\n");
                     useHIDG = false;
                 }
@@ -496,7 +487,7 @@ namespace BetterJoyForCemu {
             if (Program.useHIDG) {
                 try {
                     HttpWebResponse response = (HttpWebResponse)WebRequest.Create(@"http://localhost:26762/api/v1/hidguardian/whitelist/remove/" + pid).GetResponse();
-                } catch (Exception e) {
+                } catch (Exception) {
                     form.console.AppendText("無法從白名單中移除程序。\r\n");
                 }
             }
@@ -512,7 +503,7 @@ namespace BetterJoyForCemu {
             mgr.OnApplicationQuit();
         }
 
-        private static string appGuid = "1bf709e9-c133-41df-933a-c9ff3f664c7b"; // randomly-generated
+        private static readonly string appGuid = "1bf709e9-c133-41df-933a-c9ff3f664c7b"; // randomly-generated
         static void Main(string[] args) {
 
             // Setting the culturesettings so float gets parsed correctly

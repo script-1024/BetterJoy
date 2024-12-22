@@ -172,7 +172,7 @@ namespace BetterJoyForCemu {
 
         private void list_customControllers_SelectedValueChanged(object sender, EventArgs e) {
             if (list_customControllers.SelectedItem != null) {
-                SController v = (list_customControllers.SelectedItem as SController);
+                SController v = list_customControllers.SelectedItem as SController;
                 tip_device.Show(v.name, list_customControllers);
 
                 chooseType.SelectedIndex = v.type - 1;
@@ -196,7 +196,7 @@ namespace BetterJoyForCemu {
 
         private void chooseType_SelectedValueChanged(object sender, EventArgs e) {
             if (list_customControllers.SelectedItem != null) {
-                SController v = (list_customControllers.SelectedItem as SController);
+                SController v = list_customControllers.SelectedItem as SController;
                 v.type = (byte)(chooseType.SelectedIndex + 1);
             }
         }

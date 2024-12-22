@@ -75,7 +75,7 @@ namespace BetterJoyForCemu.Controller {
     }
 
     public class OutputControllerDualShock4 {
-        private IDualShock4Controller controller;
+        private readonly IDualShock4Controller controller;
 
         private OutputControllerDualShock4InputState current_state;
 

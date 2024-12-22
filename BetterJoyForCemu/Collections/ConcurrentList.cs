@@ -8,7 +8,7 @@ namespace BetterJoyForCemu.Collections {
     public class ConcurrentList<T> : IList<T> {
         #region Fields
 
-        private IList<T> _internalList;
+        private readonly IList<T> _internalList;
 
         private readonly object lockObject = new object();
 

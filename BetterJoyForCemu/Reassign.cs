@@ -6,7 +6,7 @@ namespace BetterJoyForCemu {
         private WindowsInput.Events.Sources.IKeyboardEventSource keyboard;
         private WindowsInput.Events.Sources.IMouseEventSource mouse;
 
-        ContextMenuStrip menu_joy_buttons = new ContextMenuStrip();
+        readonly ContextMenuStrip menu_joy_buttons = new ContextMenuStrip();
 
         private Control curAssignment;
 
@@ -38,7 +38,7 @@ namespace BetterJoyForCemu {
             ToolStripItem clickedItem = e.ClickedItem;
 
             SplitButton caller = (SplitButton)c.Tag;
-            Config.SetValue((string)caller.Tag, "joy_" + (clickedItem.Tag));
+            Config.SetValue((string)caller.Tag, "joy_" + clickedItem.Tag);
             GetPrettyName(caller);
         }
 

@@ -110,6 +110,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.ServiceProcess" />
@@ -172,6 +173,9 @@
     <None Include="Drivers\HIDGuardian\HIDGuardian Uninstall %28Run as Admin%29.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="btpair.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Drivers\HIDGuardian\_drivers\HidCerberus.Srv\HidCerberus.Srv.exe.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

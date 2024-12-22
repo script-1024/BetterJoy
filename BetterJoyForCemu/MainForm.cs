@@ -48,7 +48,7 @@ namespace BetterJoyForCemu {
             settingsTable.RowCount = myConfigs.Length;
             for (int i = 0; i != myConfigs.Length; i++) {
                 settingsTable.Controls.Add(new Label() { Text = myConfigs[i], Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft, AutoEllipsis = true }, 0, i);
-                
+
                 // 固定行高
                 var style = new RowStyle { SizeType = SizeType.Absolute, Height = 40 };
                 settingsTable.RowStyles.Add(style);
@@ -137,9 +137,9 @@ namespace BetterJoyForCemu {
             console.AppendText(value);
         }
 
-        bool toRumble = Boolean.Parse(ConfigurationManager.AppSettings["EnableRumble"]);
-        bool showAsXInput = Boolean.Parse(ConfigurationManager.AppSettings["ShowAsXInput"]);
-        bool showAsDS4 = Boolean.Parse(ConfigurationManager.AppSettings["ShowAsDS4"]);
+        readonly bool toRumble = Boolean.Parse(ConfigurationManager.AppSettings["EnableRumble"]);
+        readonly bool showAsXInput = Boolean.Parse(ConfigurationManager.AppSettings["ShowAsXInput"]);
+        readonly bool showAsDS4 = Boolean.Parse(ConfigurationManager.AppSettings["ShowAsDS4"]);
 
         public async void locBtnClickAsync(object sender, EventArgs e) {
             Button bb = sender as Button;
@@ -156,7 +156,7 @@ namespace BetterJoyForCemu {
             }
         }
 
-        bool doNotRejoin = Boolean.Parse(ConfigurationManager.AppSettings["DoNotRejoinJoycons"]);
+        readonly bool doNotRejoin = Boolean.Parse(ConfigurationManager.AppSettings["DoNotRejoinJoycons"]);
 
         public void conBtnClick(object sender, EventArgs e) {
             Button button = sender as Button;
@@ -352,8 +352,7 @@ namespace BetterJoyForCemu {
                 this.console.Text = "請將控制器放置於平坦桌面。" + "\r\n";
                 this.console.Text += "即將於 " + this.count + " 秒後開始校準。" + "\r\n";
                 this.count--;
-            }
-            else {
+            } else {
                 AppendTextBox("校準中...\r\n");
                 countDown.Stop();
                 this.StartGetData();
@@ -395,7 +394,7 @@ namespace BetterJoyForCemu {
             if (ll % 2 == 1) {
                 return this.quickselect(l, ll / 2, pivot_fn);
             } else {
-                return 0.5 * (quickselect(l, ll / 2 - 1, pivot_fn) + quickselect(l, ll / 2, pivot_fn));
+                return 0.5 * (quickselect(l, (ll / 2) - 1, pivot_fn) + quickselect(l, ll / 2, pivot_fn));
             }
         }
 
